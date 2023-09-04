@@ -24,5 +24,5 @@ sudo pip install RPLCD
 ![image](https://github.com/dong881/TW_STOCK_LCD/assets/52557611/349ef730-69e6-4928-8d00-4238b0307019)
 
 # Reference
-https://github.com/mlouielu/twstock
-https://github.com/dbrgn/RPLCD
+- https://github.com/mlouielu/twstock
+- https://github.com/dbrgn/RPLCD
