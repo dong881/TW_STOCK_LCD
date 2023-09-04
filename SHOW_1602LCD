@@ -14,7 +14,6 @@ def my_task():
     re = twstock.realtime.get('2454')
     data = ("MTK : " + re["realtime"]["latest_trade_price"])    # 擷取當前台積電股票資訊
     lcd.write_string(data)
-
 print("START")
 while True:
   my_task()
