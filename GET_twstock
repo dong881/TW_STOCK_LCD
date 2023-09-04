@@ -1,0 +1,6 @@
+import twstock
+
+re = twstock.realtime.get('2330')
+print(re["info"]["name"] + ":" + re["realtime"]["latest_trade_price"])    # 擷取當前台積電股票資訊
+
+

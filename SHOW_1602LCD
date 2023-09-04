@@ -1,0 +1,21 @@
+import RPi.GPIO as GPIO
+from RPLCD.i2c import CharLCD
+import twstock
+import time
+
+def my_task():
+    lcd = CharLCD(i2c_expander='PCF8574', address=0x27 , port=1, cols=16, rows=2)
+    lcd.clear()
+
+    re = twstock.realtime.get('2610')
+    data = (re["info"]["code"] + ":  " + re["realtime"]["latest_trade_price"])    # 擷取當前台積電股票資訊
+    lcd.write_string(data + "  ")
+
+    re = twstock.realtime.get('2454')
+    data = ("MTK : " + re["realtime"]["latest_trade_price"])    # 擷取當前台積電股票資訊
+    lcd.write_string(data)
+
+print("START")
+while True:
+  my_task()
+  time.sleep(30)
