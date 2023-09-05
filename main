@@ -1,20 +1,38 @@
 import RPi.GPIO as GPIO
 from RPLCD.i2c import CharLCD
 import twstock
-import time
+import datetime
+from time import sleep
 
-def my_task():
+
+def REAL_trace():
     lcd = CharLCD(i2c_expander='PCF8574', address=0x27 , port=1, cols=16, rows=2)
     lcd.clear()
 
     re = twstock.realtime.get('2610')
-    data = (re["info"]["code"] + ":  " + re["realtime"]["latest_trade_price"])    # 擷取當前台積電股票資訊
+    if int(re["realtime"]["best_bid_volume"][0]) < int(re["realtime"]["best_ask_volume"][0]):
+      select = re["realtime"]["best_bid_price"][0]
+    else:
+      select = re["realtime"]["best_ask_price"][0]
+    data = (re["info"]["code"] + ":  " + select)  
+    print(re)
     lcd.write_string(data + "  ")
 
     re = twstock.realtime.get('2454')
-    data = ("MTK : " + re["realtime"]["latest_trade_price"])    # 擷取當前台積電股票資訊
+    if re["realtime"]["best_bid_volume"][0] < re["realtime"]["best_ask_volume"][0]:
+      select = re["realtime"]["best_bid_price"][0]
+    else:
+      select = re["realtime"]["best_ask_price"][0]
+    data = ("MTK : " + select)  
+    print(re)
     lcd.write_string(data)
+
 print("START")
+
 while True:
-  my_task()
-  time.sleep(30)
+  now = datetime.datetime.now()
+  if now.weekday() in [0,1,2,3,4] and now.hour == 9 or (now.hour == 13 and now.minute < 30): 
+    print("WORK Time")
+    REAL_trace()
+    sleep(30)
+
