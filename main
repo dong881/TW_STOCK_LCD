@@ -67,15 +67,18 @@ def REAL_trace():
       if i==0: data+="    "
       lcd.write_string(data)
 
-        
 print("START")
+flag = True
+lcd.backlight_enabled = False
 while True:
   now = datetime.datetime.now()
   if now.weekday() in [0,1,2,3,4] and now.hour > 9 and now.hour < 13 or (now.hour == 13 and now.minute < 30): 
     print("WORK Time")
     REAL_trace()
     sleep(30)
-  elif now.weekday() in [0,1,2,3,4] and now.hour > 13 or (now.hour == 13 and now.minute >= 30): 
+  elif flag and now.weekday() in [0,1,2,3,4] and now.hour > 13 or (now.hour == 13 and now.minute >= 30): 
     print("FINAL Time")
     FINAL_trace()
-    break
+    flag = False
+  else:
+    lcd.backlight_enabled = False
