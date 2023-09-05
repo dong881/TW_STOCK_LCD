@@ -4,12 +4,21 @@ import twstock
 import datetime
 from time import sleep
 
+stocks = ['2610','2454']
 
+def FINAL_trace():
+  lcd = CharLCD(i2c_expander='PCF8574', address=0x27 , port=1, cols=16, rows=2)
+  lcd.clear()
+  re = twstock.realtime.get(stocks)
+  data = (re[stocks[0]]["info"]["code"] + ":  " + str(re[stocks[0]]['realtime']['latest_trade_price']))
+  data += "  MTK : " + str(re[stocks[1]]['realtime']['latest_trade_price'])
+  lcd.write_string(data)
+  
 def REAL_trace():
     lcd = CharLCD(i2c_expander='PCF8574', address=0x27 , port=1, cols=16, rows=2)
     lcd.clear()
 
-    re = twstock.realtime.get('2610')
+    re = twstock.realtime.get(stocks[0])
     if int(re["realtime"]["best_bid_volume"][0]) < int(re["realtime"]["best_ask_volume"][0]):
       select = re["realtime"]["best_bid_price"][0]
     else:
@@ -18,7 +27,7 @@ def REAL_trace():
     print(re)
     lcd.write_string(data + "  ")
 
-    re = twstock.realtime.get('2454')
+    re = twstock.realtime.get(stocks[1])
     if re["realtime"]["best_bid_volume"][0] < re["realtime"]["best_ask_volume"][0]:
       select = re["realtime"]["best_bid_price"][0]
     else:
@@ -28,11 +37,13 @@ def REAL_trace():
     lcd.write_string(data)
 
 print("START")
-
 while True:
   now = datetime.datetime.now()
-  if now.weekday() in [0,1,2,3,4] and now.hour == 9 or (now.hour == 13 and now.minute < 30): 
+  if now.weekday() in [0,1,2,3,4] and now.hour > 9 and now.hour < 13 or (now.hour == 13 and now.minute < 30): 
     print("WORK Time")
     REAL_trace()
     sleep(30)
-
+  elif now.weekday() in [0,1,2,3,4] and now.hour > 13 or (now.hour == 13 and now.minute >= 30): 
+    print("FINAL Time")
+    FINAL_trace()
+    break
