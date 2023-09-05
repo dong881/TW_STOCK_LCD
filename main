@@ -37,9 +37,16 @@ lcd.create_char(1, arrow_down)
 def FINAL_trace():
   lcd.clear()
   re = twstock.realtime.get(stocks)
-  data = (re[stocks[0]]["info"]["code"] + ":  " + str(re[stocks[0]]['realtime']['latest_trade_price']))
-  data += "  MTK : " + str(re[stocks[1]]['realtime']['latest_trade_price'])
-  lcd.write_string(data)
+  for i in range(len(stocks)):
+    select = re[stocks[i]]['realtime']['latest_trade_price'][:-2]
+    if i==0: select = " " + select
+    if float(re[stocks[i]]['realtime']['open']) < float(select):
+      lcd.write(0)
+    else:
+      lcd.write(1)
+    data = names[i] + ": " + select
+    if i==0: data+="    "
+    lcd.write_string(data)
 
 
 def REAL_trace():
@@ -52,27 +59,23 @@ def REAL_trace():
         select = re["realtime"]["best_ask_price"][0]
 
       if i==0: select = " " + select
-      data = (names[i] + ":" + select[:-2])  
-      # print(re)
-      print(re['realtime']['open'])
+      data = (names[i] + ": " + select[:-2])  
       if float(re['realtime']['open']) < float(select):
         lcd.write(0)
       else:
         lcd.write(1)
-      if i==0: data+="     "
+      if i==0: data+="    "
       lcd.write_string(data)
 
         
 print("START")
-REAL_trace()
-
-# while True:
-#   now = datetime.datetime.now()
-#   if now.weekday() in [0,1,2,3,4] and now.hour > 9 and now.hour < 13 or (now.hour == 13 and now.minute < 30): 
-#     print("WORK Time")
-#     REAL_trace()
-#     sleep(30)
-#   elif now.weekday() in [0,1,2,3,4] and now.hour > 13 or (now.hour == 13 and now.minute >= 30): 
-#     print("FINAL Time")
-#     FINAL_trace()
-#     break
+while True:
+  now = datetime.datetime.now()
+  if now.weekday() in [0,1,2,3,4] and now.hour > 9 and now.hour < 13 or (now.hour == 13 and now.minute < 30): 
+    print("WORK Time")
+    REAL_trace()
+    sleep(30)
+  elif now.weekday() in [0,1,2,3,4] and now.hour > 13 or (now.hour == 13 and now.minute >= 30): 
+    print("FINAL Time")
+    FINAL_trace()
+    break
