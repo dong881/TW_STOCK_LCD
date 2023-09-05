@@ -5,45 +5,74 @@ import datetime
 from time import sleep
 
 stocks = ['2610','2454']
+names = ["AIR","MTK"]
+
+lcd = CharLCD(i2c_expander='PCF8574', address=0x27 , port=1, cols=16, rows=2)
+
+arrow_up = (
+  0b00000,
+  0b00000,
+  0b00100,
+  0b01110, 
+  0b11111,
+  0b00100,
+  0b00100,
+  0b00000
+)
+arrow_down = (
+  0b00000,
+  0b00000,
+  0b00100,
+  0b00100,
+  0b11111,
+  0b01110,
+  0b00100,
+  0b00000
+) 
+
+# 創建自定義字符 
+lcd.create_char(0, arrow_up)
+lcd.create_char(1, arrow_down)
 
 def FINAL_trace():
-  lcd = CharLCD(i2c_expander='PCF8574', address=0x27 , port=1, cols=16, rows=2)
   lcd.clear()
   re = twstock.realtime.get(stocks)
   data = (re[stocks[0]]["info"]["code"] + ":  " + str(re[stocks[0]]['realtime']['latest_trade_price']))
   data += "  MTK : " + str(re[stocks[1]]['realtime']['latest_trade_price'])
   lcd.write_string(data)
-  
+
+
 def REAL_trace():
-    lcd = CharLCD(i2c_expander='PCF8574', address=0x27 , port=1, cols=16, rows=2)
     lcd.clear()
+    for i in range(len(stocks)):
+      re = twstock.realtime.get(stocks[i])
+      if int(re["realtime"]["best_bid_volume"][0]) < int(re["realtime"]["best_ask_volume"][0]):
+        select = re["realtime"]["best_bid_price"][0]
+      else:
+        select = re["realtime"]["best_ask_price"][0]
 
-    re = twstock.realtime.get(stocks[0])
-    if int(re["realtime"]["best_bid_volume"][0]) < int(re["realtime"]["best_ask_volume"][0]):
-      select = re["realtime"]["best_bid_price"][0]
-    else:
-      select = re["realtime"]["best_ask_price"][0]
-    data = (re["info"]["code"] + ":  " + select)  
-    print(re)
-    lcd.write_string(data + "  ")
+      if i==0: select = " " + select
+      data = (names[i] + ":" + select[:-2])  
+      # print(re)
+      print(re['realtime']['open'])
+      if float(re['realtime']['open']) < float(select):
+        lcd.write(0)
+      else:
+        lcd.write(1)
+      if i==0: data+="     "
+      lcd.write_string(data)
 
-    re = twstock.realtime.get(stocks[1])
-    if re["realtime"]["best_bid_volume"][0] < re["realtime"]["best_ask_volume"][0]:
-      select = re["realtime"]["best_bid_price"][0]
-    else:
-      select = re["realtime"]["best_ask_price"][0]
-    data = ("MTK : " + select)  
-    print(re)
-    lcd.write_string(data)
-
+        
 print("START")
-while True:
-  now = datetime.datetime.now()
-  if now.weekday() in [0,1,2,3,4] and now.hour > 9 and now.hour < 13 or (now.hour == 13 and now.minute < 30): 
-    print("WORK Time")
-    REAL_trace()
-    sleep(30)
-  elif now.weekday() in [0,1,2,3,4] and now.hour > 13 or (now.hour == 13 and now.minute >= 30): 
-    print("FINAL Time")
-    FINAL_trace()
-    break
+REAL_trace()
+
+# while True:
+#   now = datetime.datetime.now()
+#   if now.weekday() in [0,1,2,3,4] and now.hour > 9 and now.hour < 13 or (now.hour == 13 and now.minute < 30): 
+#     print("WORK Time")
+#     REAL_trace()
+#     sleep(30)
+#   elif now.weekday() in [0,1,2,3,4] and now.hour > 13 or (now.hour == 13 and now.minute >= 30): 
+#     print("FINAL Time")
+#     FINAL_trace()
+#     break
