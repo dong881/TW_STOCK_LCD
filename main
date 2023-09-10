@@ -72,12 +72,12 @@ flag = True
 lcd.backlight_enabled = False
 while True:
   now = datetime.datetime.now()
-  if now.weekday() in [0,1,2,3,4] and now.hour > 9 and now.hour < 13 or (now.hour == 13 and now.minute <= 30): 
+  if now.weekday() in [0,1,2,3,4] and (now.hour > 9 and now.hour < 13 or (now.hour == 13 and now.minute <= 30)): 
     print("WORK Time")
     lcd.backlight_enabled = True
     REAL_trace()
     sleep(30)
-  elif now.weekday() in [0,1,2,3,4] and now.hour > 13 or (now.hour == 13 and now.minute > 30): 
+  elif now.weekday() in [0,1,2,3,4] and (now.hour > 13 or (now.hour == 13 and now.minute > 30)): 
     lcd.backlight_enabled = True
     if flag: 
       print("FINAL Time")
